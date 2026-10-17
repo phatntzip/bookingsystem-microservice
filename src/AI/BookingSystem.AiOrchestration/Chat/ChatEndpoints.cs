@@ -20,6 +20,8 @@ public static class ChatEndpoints
             ProposalCapture capture,
             ProposalStore proposals,
             ConversationStore conversations,
+            PromptCacheOptions cacheOptions,
+            ILoggerFactory loggerFactory,
             CancellationToken ct) =>
         {
             if (string.IsNullOrWhiteSpace(req.Message))
@@ -31,9 +33,10 @@ public static class ChatEndpoints
 
             var history = conversations.GetOrCreate(
                 conversationId,
-                () => [new ChatMessage(ChatRole.System, SystemPrompt.Build())]);
+                () => [PromptCaching.SystemMessage(SystemPrompt.Build(), cacheOptions)]);
 
             history.Add(new ChatMessage(ChatRole.User, req.Message));
+            PromptCaching.MarkTail(history, cacheOptions);
 
             var options = new ChatOptions
             {
@@ -50,6 +53,17 @@ public static class ChatEndpoints
 
             var response = await chat.GetResponseAsync(history, options, ct);
             history.AddRange(response.Messages);
+
+            // Ground truth that caching works: cached should be > 0 from the second turn on.
+            if (response.Usage is { } usage)
+            {
+                var extra = usage.AdditionalCounts is null
+                    ? ""
+                    : string.Join(", ", usage.AdditionalCounts.Select(kv => $"{kv.Key}={kv.Value}"));
+                loggerFactory.CreateLogger("PromptCache").LogInformation(
+                    "Usage: input={Input} cachedInput={Cached} output={Output} {Extra}",
+                    usage.InputTokenCount, usage.CachedInputTokenCount, usage.OutputTokenCount, extra);
+            }
 
             if (capture.Pending is { } pending)
             {

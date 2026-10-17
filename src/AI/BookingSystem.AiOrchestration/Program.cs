@@ -27,6 +27,7 @@ IChatClient chatClient = anthropic
     .Build();
 
 builder.Services.AddSingleton(chatClient);
+builder.Services.AddSingleton(PromptCacheOptions.From(builder.Configuration));
 
 // --- HTTP to the existing API gateway ---
 // Under Aspire, service discovery resolves "http://api-gateway". Standalone, override with
