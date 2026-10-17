@@ -46,12 +46,12 @@ Table name: `reviews`; columns mapped to `snake_case` (`booking_id`, `catalog_id
 public interface IReviewRepository
 {
     Task AddAsync(Review review, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<Review>> GetByListingAsync(Guid catalogId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Review>> GetByCatalogAsync(Guid catalogId, CancellationToken cancellationToken = default);
 }
 ```
 
 `ReviewRepository.AddAsync` calls `SaveChangesAsync` directly — no `UnitOfWork`.  
-`GetByListingAsync` orders by `CreatedAt` descending.
+`GetByCatalogAsync` orders by `CreatedAt` descending.
 
 ## Command
 
@@ -68,7 +68,7 @@ public record CreateReviewCommand(
 | Method | Path | Handler | Auth (gateway) |
 |---|---|---|---|
 | POST | `/api/reviews` | `CreateReviewCommand` | Required (`.RequireAuthorization()` on route) |
-| GET | `/api/reviews/listing/{catalogId:guid}` | Direct `IReviewRepository` call | None |
+| GET | `/api/reviews/catalog/{catalogId:guid}` | Direct `IReviewRepository` call | None |
 
 `GET` does not use MediatR — the endpoint injects `IReviewRepository` directly.
 

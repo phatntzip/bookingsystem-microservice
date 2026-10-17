@@ -140,7 +140,7 @@ Each service owns its own key namespace. Do not write to another service's keys.
 
 | Service | Key pattern | TTL |
 |---|---|---|
-| BookingService | `lock:listing:{id}:{date}` | 30 s (Redlock) |
-| CatalogService | `listing:{id}` | 5 min |
+| BookingService | `lock:catalog:{id}:{date}` | 30 s (Redlock) |
+| CatalogService | `catalog:{id}` | 5 min |
 | SearchService | `search:{hash}` | 2 min |
 | UserService | `user:{id}:profile` | 10 min |

@@ -10,7 +10,7 @@ public class ReviewRepository(ReviewDbContext db) : IReviewRepository
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Review>> GetByListingAsync(Guid catalogId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Review>> GetByCatalogAsync(Guid catalogId, CancellationToken cancellationToken = default)
         => await db.Reviews
             .Where(r => r.CatalogId == catalogId)
             .OrderByDescending(r => r.CreatedAt)

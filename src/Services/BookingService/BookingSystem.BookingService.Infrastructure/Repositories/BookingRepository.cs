@@ -11,6 +11,9 @@ public class BookingRepository(BookingDbContext dbContext) : IBookingRepository
     public Task<Booking?> GetByIdAsync(BookingId id, CancellationToken cancellationToken = default)
         => dbContext.Bookings.FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
 
+    public async Task<IReadOnlyList<Booking>> GetAllAsync(CancellationToken cancellationToken = default)
+        => await dbContext.Bookings.OrderByDescending(b => b.Period.CheckIn).ToListAsync(cancellationToken);
+
     public async Task AddAsync(Booking booking, CancellationToken cancellationToken = default)
         => await dbContext.Bookings.AddAsync(booking, cancellationToken);
 

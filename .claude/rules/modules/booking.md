@@ -22,7 +22,7 @@ BookingSystem.BookingService.Application/
 ├── Queries/GetBooking/GetBookingQuery.cs + GetBookingHandler.cs
 ├── DTOs/BookingDto.cs
 ├── EventHandlers/BookingEventHandlers.cs
-├── Exceptions/NotFoundException.cs, BookingOverlapException.cs, ListingNotAvailableException.cs
+├── Exceptions/NotFoundException.cs, BookingOverlapException.cs, CatalogNotAvailableException.cs
 └── Interfaces/ICatalogServiceClient.cs, IUserServiceClient.cs, UoW/IUnitOfWork.cs
 
 BookingSystem.BookingService.Infrastructure/
@@ -113,7 +113,7 @@ public record GetBookingQuery(Guid BookingId) : IRequest<BookingDto>;
 `CreateBookingHandler` flow:
 1. Build `DateRange` (validates `CheckOut > CheckIn`)
 2. `ICatalogServiceClient.GetCatalogAsync` → throws `NotFoundException` if null
-3. Check `catalog.IsAvailable` → throws `ListingNotAvailableException` if false
+3. Check `catalog.IsAvailable` → throws `CatalogNotAvailableException` if false
 4. `IBookingRepository.HasOverlapAsync` → throws `BookingOverlapException` if overlapping booking exists
 5. Calculate `totalPrice = PricePerNight × Nights`
 6. `Booking.Create(...)` → raises `BookingCreatedEvent`

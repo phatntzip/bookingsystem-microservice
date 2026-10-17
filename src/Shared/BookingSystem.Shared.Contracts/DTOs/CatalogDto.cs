@@ -8,13 +8,13 @@ public record CatalogDto(
     string Currency,
     bool IsAvailable);
 
-public static class ListingDtoExtensions
+public static class CatalogDtoExtensions
 {
-    public static bool IsAvailable(this CatalogDto listing, DateRange period) =>
-        listing.IsAvailable;
+    public static bool IsAvailable(this CatalogDto catalog, DateRange period) =>
+        catalog.IsAvailable;
 
-    public static (decimal Amount, string Currency) CalculatePrice(this CatalogDto listing, DateRange period) =>
-        (listing.PricePerNight * period.Nights, listing.Currency);
+    public static (decimal Amount, string Currency) CalculatePrice(this CatalogDto catalog, DateRange period) =>
+        (catalog.PricePerNight * period.Nights, catalog.Currency);
 }
 
 public record DateRange(DateOnly CheckIn, DateOnly CheckOut)

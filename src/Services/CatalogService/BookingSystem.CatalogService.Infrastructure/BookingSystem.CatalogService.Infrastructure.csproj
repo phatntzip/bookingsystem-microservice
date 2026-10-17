@@ -4,7 +4,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.*" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.*">
@@ -13,7 +12,6 @@
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.*" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="../../../Shared/BookingSystem.Shared.Persistence/BookingSystem.Shared.Persistence.csproj" />
     <ProjectReference Include="../../../Shared/BookingSystem.Shared.CrossCutting/BookingSystem.Shared.CrossCutting.csproj" />

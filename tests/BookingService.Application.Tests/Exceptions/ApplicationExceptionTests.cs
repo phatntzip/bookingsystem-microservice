@@ -27,11 +27,11 @@ public class BookingOverlapExceptionTests
     public void Constructor_HasDescriptiveDefaultMessage()
     {
         new BookingOverlapException().Message
-            .Should().Be("A booking already exists for the requested listing and dates.");
+            .Should().Be("A booking already exists for the requested catalog and dates.");
     }
 }
 
-public class ListingNotAvailableExceptionTests
+public class CatalogNotAvailableExceptionTests
 {
     [Fact]
     public void Constructor_MessageContainsCatalogIdAndPeriod()
@@ -39,7 +39,7 @@ public class ListingNotAvailableExceptionTests
         var catalogId = Guid.NewGuid();
         var period = new DateRange(new DateOnly(2026, 8, 1), new DateOnly(2026, 8, 5));
 
-        var exception = new ListingNotAvailableException(catalogId, period);
+        var exception = new CatalogNotAvailableException(catalogId, period);
 
         exception.Message.Should().Contain(catalogId.ToString());
         // DateOnly.ToString() is culture-dependent, so compare against the same formatting

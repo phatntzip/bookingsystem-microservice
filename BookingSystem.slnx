@@ -1,5 +1,8 @@
 <Solution>
   <Folder Name="/src/" />
+  <Folder Name="/src/AI/">
+    <Project Path="src/AI/BookingSystem.AiOrchestration/BookingSystem.AiOrchestration.csproj" />
+  </Folder>
   <Folder Name="/src/Gateway/">
     <Project Path="src/Gateway/BookingSystem.ApiGateway/BookingSystem.ApiGateway.csproj" />
   </Folder>

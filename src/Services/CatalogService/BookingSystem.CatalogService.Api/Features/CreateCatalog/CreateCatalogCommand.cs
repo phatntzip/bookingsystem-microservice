@@ -2,7 +2,7 @@ using BookingSystem.CatalogService.Infrastructure.Persistence;
 using BookingSystem.CatalogService.Infrastructure.Repositories;
 using MediatR;
 
-namespace BookingSystem.CatalogService.Api.Features.CreateListing;
+namespace BookingSystem.CatalogService.Api.Features.CreateCatalog;
 
 public record CreateCatalogCommand(
     string Title,
@@ -10,7 +10,7 @@ public record CreateCatalogCommand(
     decimal PricePerNight,
     string Currency) : IRequest<Guid>;
 
-public class CreateCatalogHandler(IListingRepository repo)
+public class CreateCatalogHandler(ICatalogRepository repo)
     : IRequestHandler<CreateCatalogCommand, Guid>
 {
     public async Task<Guid> Handle(CreateCatalogCommand cmd, CancellationToken cancellationToken)

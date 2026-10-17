@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "BookingSystem.AiOrchestration": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Gateway__BaseUrl": "http://localhost:64963"
+      },
+      "applicationUrl": "http://localhost:5000"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 using BookingSystem.BookingService.Application.Commands.CancelBooking;
 using BookingSystem.BookingService.Application.Commands.CreateBooking;
 using BookingSystem.BookingService.Application.Queries.GetBooking;
+using BookingSystem.BookingService.Application.Queries.GetBookings;
 using MediatR;
 
 namespace BookingSystem.BookingService.Api.Endpoints;
@@ -10,6 +11,13 @@ public static class BookingEndpoints
     public static void MapBookingEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/api/bookings");
+
+        group.MapGet("/", async (ISender sender) =>
+        {
+            var bookings = await sender.Send(new GetBookingsQuery());
+            return Results.Ok(bookings);
+        })
+        .WithName("ListBookings");
 
         group.MapPost("/", async (CreateBookingCommand cmd, ISender sender) =>
         {

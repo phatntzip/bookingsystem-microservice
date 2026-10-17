@@ -43,7 +43,7 @@ public class CreateBookingHandlerTests
     }
 
     [Fact]
-    public async Task Handle_CatalogNotAvailable_ThrowsListingNotAvailableException()
+    public async Task Handle_CatalogNotAvailable_ThrowsCatalogNotAvailableException()
     {
         var cmd = CreateCommand();
         _catalogClient.GetCatalogAsync(cmd.CatalogId, Arg.Any<CancellationToken>())
@@ -51,7 +51,7 @@ public class CreateBookingHandlerTests
 
         var act = () => CreateHandler().Handle(cmd, default);
 
-        await act.Should().ThrowAsync<ListingNotAvailableException>();
+        await act.Should().ThrowAsync<CatalogNotAvailableException>();
         await _bookingRepo.DidNotReceive().AddAsync(Arg.Any<Booking>(), Arg.Any<CancellationToken>());
     }
 

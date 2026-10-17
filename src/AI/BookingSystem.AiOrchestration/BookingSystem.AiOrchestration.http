@@ -1,0 +1,33 @@
+# AI Orchestration — Phase 1 (function calling + confirmation gate)
+#
+# @host is the ai-orchestration URL. Under Aspire, copy it from the dashboard
+# (the "ai-orchestration" resource endpoint). Standalone: use your launch URL.
+@host = http://localhost:5000
+
+### 1. A read — runs immediately, no confirmation
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "message": "Find me a catalog in Da Nang"
+}
+
+### 2. A write — the assistant PREPARES a booking and returns a proposal.
+# Capture `conversationId` and `proposal.proposalId` from the response.
+POST {{host}}/chat
+Content-Type: application/json
+
+{
+  "conversationId": "REPLACE_WITH_conversationId",
+  "message": "Book catalog 3fa85f64-5717-4562-b3fc-2c963f66afa6 from tomorrow for 2 nights"
+}
+
+### 3. Confirm the proposal — only now does it hit the booking API
+POST {{host}}/chat/confirm
+Content-Type: application/json
+
+{
+  "conversationId": "REPLACE_WITH_conversationId",
+  "proposalId": "REPLACE_WITH_proposalId",
+  "approve": true
+}

@@ -1,4 +1,4 @@
-using BookingSystem.CatalogService.Api.Features.GetListing;
+using BookingSystem.CatalogService.Api.Features.GetCatalog;
 using BookingSystem.CatalogService.Infrastructure.Persistence;
 using BookingSystem.CatalogService.Infrastructure.Repositories;
 using BookingSystem.Shared.Contracts.DTOs;
@@ -9,10 +9,10 @@ namespace CatalogService.Tests.Features;
 
 public class GetCatalogByIdHandlerTests
 {
-    private readonly IListingRepository _repo = Substitute.For<IListingRepository>();
+    private readonly ICatalogRepository _repo = Substitute.For<ICatalogRepository>();
 
     [Fact]
-    public async Task Handle_ListingNotFound_ReturnsNull()
+    public async Task Handle_CatalogNotFound_ReturnsNull()
     {
         _repo.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((Catalog?)null);
 
@@ -22,9 +22,9 @@ public class GetCatalogByIdHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ListingExists_MapsAllFieldsToSharedDto()
+    public async Task Handle_CatalogExists_MapsAllFieldsToSharedDto()
     {
-        var listing = new Catalog
+        var catalog = new Catalog
         {
             Id = Guid.NewGuid(),
             Title = "Beach House",
@@ -34,10 +34,10 @@ public class GetCatalogByIdHandlerTests
             IsAvailable = false,
             CreatedAt = DateTime.UtcNow
         };
-        _repo.GetByIdAsync(listing.Id, Arg.Any<CancellationToken>()).Returns(listing);
+        _repo.GetByIdAsync(catalog.Id, Arg.Any<CancellationToken>()).Returns(catalog);
 
-        var dto = await new GetCatalogByIdHandler(_repo).Handle(new GetCatalogByIdQuery(listing.Id), default);
+        var dto = await new GetCatalogByIdHandler(_repo).Handle(new GetCatalogByIdQuery(catalog.Id), default);
 
-        dto.Should().Be(new CatalogDto(listing.Id, "Beach House", "A house on the beach", 150m, "USD", false));
+        dto.Should().Be(new CatalogDto(catalog.Id, "Beach House", "A house on the beach", 150m, "USD", false));
     }
 }

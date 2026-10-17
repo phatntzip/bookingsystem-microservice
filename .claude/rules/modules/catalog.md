@@ -9,10 +9,10 @@ BookingSystem.CatalogService.Api/
 ├── Program.cs
 ├── Endpoints/CatalogEndpoints.cs
 └── Features/
-    ├── CreateListing/
+    ├── CreateCatalog/
     │   ├── CreateCatalogCommand.cs
     │   └── CreateCatalogHandler.cs
-    └── GetListing/
+    └── GetCatalog/
         ├── GetCatalogByIdQuery.cs
         └── GetCatalogByIdHandler.cs
 
@@ -22,8 +22,8 @@ BookingSystem.CatalogService.Infrastructure/
     ├── CatalogDbContextFactory.cs
     ├── Migrations/
     └── Repositories/
-        ├── IListingRepository.cs    ← note: named IListingRepository
-        └── ListingRepository.cs
+        ├── ICatalogRepository.cs    ← note: named ICatalogRepository
+        └── CatalogRepository.cs
 ```
 
 ## Entity
@@ -47,17 +47,17 @@ Table name: `catalogs`. Configuration is inline in `OnModelCreating`.
 
 ## Repository
 
-The repository interface is named `IListingRepository`, not `ICatalogRepository`:
+The repository interface is named `ICatalogRepository`, not `ICatalogRepository`:
 
 ```csharp
-public interface IListingRepository
+public interface ICatalogRepository
 {
     Task<Catalog?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task AddAsync(Catalog listing, CancellationToken cancellationToken = default);
+    Task AddAsync(Catalog catalog, CancellationToken cancellationToken = default);
 }
 ```
 
-`ListingRepository.AddAsync` calls `SaveChangesAsync` directly — no `UnitOfWork`.
+`CatalogRepository.AddAsync` calls `SaveChangesAsync` directly — no `UnitOfWork`.
 
 ## Shared DTO (Shared.Contracts)
 
@@ -93,7 +93,7 @@ Note the double segment: the group is `/api/catalog` and the routes add `/catalo
 builder.AddNpgsqlDbContext<CatalogDbContext>("catalogdb");
 builder.AddRedisDistributedCache("redis");
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
-builder.Services.AddScoped<IListingRepository, ListingRepository>();
+builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
 ```
 
 Has `RunMigrationsOnStartup` block using `MigrateWithRetryAsync`.
@@ -107,4 +107,4 @@ CatalogService has **no Kafka producer or consumer** in the current implementati
 - No Kafka output (availability events not published)
 - No availability date blocking/unblocking — see GitHub issue #16
 - No `IsAvailable` update endpoint (flag can only be set at creation time)
-- Redis cache (`listing:{id}`) is registered but the repository does not read/write it
+- Redis cache (`catalog:{id}`) is registered but the repository does not read/write it

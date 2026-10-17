@@ -12,7 +12,7 @@
     <PackageReference Include="Aspire.Hosting.Redis" Version="13.4.6" />
     <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.4.6" />
     <PackageReference Include="Aspire.Hosting.Elasticsearch" Version="13.3.0" />
-    <PackageReference Include="MessagePack" Version="3.1.7" />
+    <PackageReference Include="MessagePack" Version="3.1.12" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,5 +25,6 @@
     <ProjectReference Include="../../Services/NotificationService/BookingSystem.NotificationService.Api/BookingSystem.NotificationService.Api.csproj" />
     <ProjectReference Include="../../Services/SearchService/BookingSystem.SearchService.Api/BookingSystem.SearchService.Api.csproj" />
     <ProjectReference Include="../../Services/ReviewService/BookingSystem.ReviewService.Api/BookingSystem.ReviewService.Api.csproj" />
+    <ProjectReference Include="../../AI/BookingSystem.AiOrchestration/BookingSystem.AiOrchestration.csproj" />
   </ItemGroup>
 </Project>

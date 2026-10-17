@@ -25,7 +25,7 @@ Index name: `catalogs`
 
 Document type:
 ```csharp
-public record ListingDocument(
+public record CatalogDocument(
     Guid Id, string Title, string Description,
     decimal PricePerNight, string Currency, bool IsAvailable);
 ```
@@ -40,11 +40,11 @@ public interface ISearchService
         decimal? maxPrice, int page, int pageSize,
         CancellationToken cancellationToken = default);
 
-    Task IndexListingAsync(ListingDocument listing, CancellationToken cancellationToken = default);
+    Task IndexCatalogAsync(CatalogDocument catalog, CancellationToken cancellationToken = default);
 }
 ```
 
-`IndexListingAsync` exists on the interface but is not called from any handler or consumer in the current codebase — the index is not populated automatically.
+`IndexCatalogAsync` exists on the interface but is not called from any handler or consumer in the current codebase — the index is not populated automatically.
 
 ## Search behaviour
 
@@ -54,7 +54,7 @@ public interface ISearchService
 - `checkIn`, `checkOut`, `maxPrice` are **accepted as parameters but not applied** to the query — the Elasticsearch query ignores them
 - Pagination via `from = (page - 1) * pageSize` + `size = pageSize`
 
-Returns `SearchResult(IReadOnlyList<ListingDocument> Items, long Total, int Page, int PageSize)`.
+Returns `SearchResult(IReadOnlyList<CatalogDocument> Items, long Total, int Page, int PageSize)`.
 
 ## Query and endpoint
 
@@ -81,11 +81,11 @@ No `AddNpgsqlDbContext`. No Kafka consumer registration.
 
 ## Kafka
 
-SearchService has **no Kafka consumer** in the current implementation. The `catalog.availability.updated` topic is not consumed. The Elasticsearch index must be populated via direct `IndexListingAsync` calls or a future consumer.
+SearchService has **no Kafka consumer** in the current implementation. The `catalog.availability.updated` topic is not consumed. The Elasticsearch index must be populated via direct `IndexCatalogAsync` calls or a future consumer.
 
 ## Gaps
 
 - `checkIn`, `checkOut`, `maxPrice` filters are not applied in the Elasticsearch query — see GitHub issue #16
 - No Kafka consumer for `catalog.availability.updated` — index is never populated automatically
-- `IndexListingAsync` is not called from any code path
+- `IndexCatalogAsync` is not called from any code path
 - Redis cache is registered but not used for search result caching in the current implementation

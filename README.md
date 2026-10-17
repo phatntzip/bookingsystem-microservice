@@ -105,7 +105,7 @@ flowchart TB
 - **Transactional Outbox** — BookingService **and** PaymentService write domain/integration events to an `outbox_messages` table in the *same transaction* as the state change; a background `OutboxProcessor` publishes them to Kafka, so the DB and the event stream can never diverge.
 - **At-least-once + idempotent consumers** — `KafkaConsumerBase` commits offsets manually, retries transient failures with backoff, and parks poison/exhausted messages in a per-topic `.dlq`. Handlers are idempotent (duplicate `payment.succeeded` on a confirmed booking is a no-op).
 - **Durable refund compensation** — if a payment is captured but its booking can't be confirmed, `RefundProcessor` reconciles the refund obligation to completion, retrying transient gateway failures indefinitely (a refund is never dead-lettered).
-- **Distributed Locking** — Redis locks on `lock:listing:{id}:{date}` guard against double-booking.
+- **Distributed Locking** — Redis locks on `lock:catalog:{id}:{date}` guard against double-booking.
 - **Resilience** — `StandardResilienceHandler` (retry, circuit breaker, timeout) on all HTTP clients.
 - **Service Discovery** — .NET Aspire DNS-based; no hardcoded ports.
 

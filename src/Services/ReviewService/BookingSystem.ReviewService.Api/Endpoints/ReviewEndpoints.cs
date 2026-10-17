@@ -18,11 +18,11 @@ public static class ReviewEndpoints
         .RequireAuthorization()
         .WithName("CreateReview");
 
-        group.MapGet("/listing/{catalogId:guid}", async (Guid catalogId, IReviewRepository repo) =>
+        group.MapGet("/catalog/{catalogId:guid}", async (Guid catalogId, IReviewRepository repo) =>
         {
-            var reviews = await repo.GetByListingAsync(catalogId);
+            var reviews = await repo.GetByCatalogAsync(catalogId);
             return Results.Ok(reviews);
         })
-        .WithName("GetReviewsByListing");
+        .WithName("GetReviewsByCatalog");
     }
 }

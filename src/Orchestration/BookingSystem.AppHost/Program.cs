@@ -128,13 +128,22 @@ var reviewSvc = builder.AddProject<Projects.BookingSystem_ReviewService_Api>("re
     .WaitFor(kafka);
 
 // --- API Gateway ---
-builder.AddProject<Projects.BookingSystem_ApiGateway>("api-gateway")
+var gateway = builder.AddProject<Projects.BookingSystem_ApiGateway>("api-gateway")
     .WithReference(userSvc)
     .WithReference(catalogSvc)
     .WithReference(bookingSvc)
     .WithReference(paymentSvc)
     .WithReference(searchSvc)
     .WithReference(reviewSvc)
+    .WithExternalHttpEndpoints();
+
+// --- AI Orchestration (natural-language layer over the gateway) ---
+// Talks to the gateway via service discovery ("http://api-gateway"). Needs an Anthropic API key:
+// set ANTHROPIC_API_KEY in the AppHost environment and it is forwarded to the service.
+builder.AddProject<Projects.BookingSystem_AiOrchestration>("ai-orchestration")
+    .WithReference(gateway)
+    .WaitFor(gateway)
+    .WithEnvironment("ANTHROPIC_API_KEY", builder.Configuration["ANTHROPIC_API_KEY"] ?? "")
     .WithExternalHttpEndpoints();
 
 builder.Build().Run();

@@ -389,7 +389,7 @@ BookingSystem.BookingService.Api/             <- Minimal API entry point
 public class Booking : AggregateRoot<BookingId>
 {
     public UserId UserId { get; private set; }
-    public ListingId ListingId { get; private set; }
+    public CatalogId CatalogId { get; private set; }
     public DateRange Period { get; private set; }
     public Money TotalPrice { get; private set; }
     public BookingStatus Status { get; private set; }
@@ -398,7 +398,7 @@ public class Booking : AggregateRoot<BookingId>
 
     public static Booking Create(
         UserId userId,
-        ListingId listingId,
+        CatalogId catalogId,
         DateRange period,
         Money totalPrice)
     {
@@ -406,12 +406,12 @@ public class Booking : AggregateRoot<BookingId>
         {
             Id = BookingId.New(),
             UserId = userId,
-            ListingId = listingId,
+            CatalogId = catalogId,
             Period = period,
             TotalPrice = totalPrice,
             Status = BookingStatus.Pending
         };
-        booking.AddDomainEvent(new BookingCreatedEvent(booking.Id, userId, listingId));
+        booking.AddDomainEvent(new BookingCreatedEvent(booking.Id, userId, catalogId));
         return booking;
     }
 
@@ -474,7 +474,7 @@ public record BookingId(Guid Value)
 public record BookingCreatedEvent(
     BookingId BookingId,
     UserId UserId,
-    ListingId ListingId) : IDomainEvent;
+    CatalogId CatalogId) : IDomainEvent;
 
 // Domain/Exceptions/BookingDomainException.cs
 public class BookingDomainException(string message) : Exception(message);
@@ -486,7 +486,7 @@ public interface IBookingRepository
 {
     Task<Booking?> GetByIdAsync(BookingId id, CancellationToken ct = default);
     Task AddAsync(Booking booking, CancellationToken ct = default);
-    Task<bool> HasOverlapAsync(ListingId listingId, DateRange period, CancellationToken ct = default);
+    Task<bool> HasOverlapAsync(CatalogId catalogId, DateRange period, CancellationToken ct = default);
 }
 ```
 
@@ -496,7 +496,7 @@ public interface IBookingRepository
 // Application/Commands/CreateBooking/CreateBookingCommand.cs
 public record CreateBookingCommand(
     Guid UserId,
-    Guid ListingId,
+    Guid CatalogId,
     DateOnly CheckIn,
     DateOnly CheckOut) : IRequest<BookingId>;
 
@@ -512,21 +512,21 @@ public class CreateBookingHandler(
         var period = new DateRange(cmd.CheckIn, cmd.CheckOut);
 
         // Sync call: check availability via CatalogService
-        var listing = await catalogClient.GetListingAsync(cmd.ListingId, ct)
-            ?? throw new NotFoundException($"Listing {cmd.ListingId} not found.");
+        var catalog = await catalogClient.GetCatalogAsync(cmd.CatalogId, ct)
+            ?? throw new NotFoundException($"Catalog {cmd.CatalogId} not found.");
 
-        if (!listing.IsAvailable(period))
-            throw new ListingNotAvailableException(cmd.ListingId, period);
+        if (!catalog.IsAvailable(period))
+            throw new CatalogNotAvailableException(cmd.CatalogId, period);
 
         // Check for overlapping bookings in own DB
-        if (await bookingRepo.HasOverlapAsync(new ListingId(cmd.ListingId), period, ct))
+        if (await bookingRepo.HasOverlapAsync(new CatalogId(cmd.CatalogId), period, ct))
             throw new BookingOverlapException();
 
-        var totalPrice = listing.CalculatePrice(period);
+        var totalPrice = catalog.CalculatePrice(period);
 
         var booking = Booking.Create(
             new UserId(cmd.UserId),
-            new ListingId(cmd.ListingId),
+            new CatalogId(cmd.CatalogId),
             period,
             totalPrice);
 
@@ -553,7 +553,7 @@ public class GetBookingHandler(IBookingRepository repo)
         return new BookingDto(
             booking.Id.Value,
             booking.UserId.Value,
-            booking.ListingId.Value,
+            booking.CatalogId.Value,
             booking.Period.CheckIn,
             booking.Period.CheckOut,
             booking.TotalPrice.Amount,
@@ -712,7 +712,7 @@ BookingSystem.Shared.Contracts/
 │   └── PaymentFailedIntegrationEvent.cs
 └── DTOs/
     ├── BookingDto.cs
-    └── ListingDto.cs
+    └── CatalogDto.cs
 ```
 
 ```csharp
@@ -720,7 +720,7 @@ BookingSystem.Shared.Contracts/
 public record BookingCreatedIntegrationEvent(
     Guid BookingId,
     Guid UserId,
-    Guid ListingId,
+    Guid CatalogId,
     DateOnly CheckIn,
     DateOnly CheckOut,
     decimal Amount,
@@ -813,7 +813,7 @@ public class PublishBookingCreatedHandler(IEventPublisher publisher)
             new BookingCreatedIntegrationEvent(
                 notification.BookingId.Value,
                 notification.UserId.Value,
-                notification.ListingId.Value,
+                notification.CatalogId.Value,
                 // ... map fields
                 DateTimeOffset.UtcNow), ct);
 }
@@ -851,8 +851,8 @@ Each service owns its own Redis key namespace (see `.claude/rules/database.md`):
 
 | Service | Redis Key Pattern | TTL | Purpose |
 |---|---|---|---|
-| BookingService | `lock:listing:{id}:{date}` | 30 sec | Distributed lock (double-booking prevention) |
-| CatalogService | `listing:{id}` | 5 min | Availability cache |
+| BookingService | `lock:catalog:{id}:{date}` | 30 sec | Distributed lock (double-booking prevention) |
+| CatalogService | `catalog:{id}` | 5 min | Availability cache |
 | SearchService | `search:{hash}` | 2 min | Query result cache |
 | UserService | `user:{id}:profile` | 10 min | Profile cache |
 
@@ -971,6 +971,6 @@ find src -name "*.csproj" | xargs -I {} dotnet sln add {}
 | Reliability | Transactional outbox + DLQ + refund reconciler | No lost events; at-least-once with idempotent, retrying consumers |
 | ORM | EF Core 10 | Per-service DbContext, migrations, owned value objects |
 | Cache / Lock | Redis | Distributed cache + Redlock for booking concurrency |
-| Search | Elasticsearch | Full-text search over listings |
+| Search | Elasticsearch | Full-text search over catalogs |
 | Architecture | DDD on BookingService | Complex booking domain justifies aggregates + domain events |
 | CQRS | MediatR | Clean separation of commands/queries per service |

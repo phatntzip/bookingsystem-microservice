@@ -115,7 +115,7 @@ stateDiagram-v2
 | **Reliable Consumers** | `Shared.Messaging/KafkaConsumerBase.cs` — manual offset commit, bounded retry, dead-letter |
 | **Refund Reconciler** | `PaymentService/Refunds/RefundProcessor.cs` — drives durable `RefundPending` obligations to completion |
 | **Payment Gateway Abstraction** | `PaymentService.Infrastructure/Gateway/` — `IPaymentGateway` + `MockPaymentGateway` (always approves; swap for a real gateway) |
-| **Distributed Cache / Lock** | Redis via `AddRedisDistributedCache()`; `lock:listing:{id}:{date}` for double-booking |
+| **Distributed Cache / Lock** | Redis via `AddRedisDistributedCache()`; `lock:catalog:{id}:{date}` for double-booking |
 | **Full-Text Search** | `SearchService/Infrastructure/Search/ElasticsearchService.cs` — Elasticsearch with pagination (date/price filters are accepted but not yet applied) |
 | **Observability** | OpenTelemetry (traces + metrics + logs) via ServiceDefaults |
 
@@ -215,7 +215,7 @@ raises an operator alert.
 **Synchronous (HTTP)** — only from BookingService, at request time, via typed `HttpClient` with
 Aspire service discovery + `StandardResilienceHandler`:
 
-- `CatalogServiceClient` → `GET /api/catalog/catalogs/{id}` (verify listing exists / available)
+- `CatalogServiceClient` → `GET /api/catalog/catalogs/{id}` (verify catalog exists / available)
 - `UserServiceClient` → `GET /api/users/{id}` (registered; not currently called by `CreateBookingHandler`)
 
 **Asynchronous (Kafka)** — all other cross-service communication (see the choreography diagram above).

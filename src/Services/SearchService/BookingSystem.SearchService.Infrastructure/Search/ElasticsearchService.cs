@@ -2,7 +2,7 @@ using Elastic.Clients.Elasticsearch;
 
 namespace BookingSystem.SearchService.Infrastructure.Search;
 
-public record ListingDocument(
+public record CatalogDocument(
     Guid Id,
     string Title,
     string Description,
@@ -10,7 +10,7 @@ public record ListingDocument(
     string Currency,
     bool IsAvailable);
 
-public record SearchResult(IReadOnlyList<ListingDocument> Items, long Total, int Page, int PageSize);
+public record SearchResult(IReadOnlyList<CatalogDocument> Items, long Total, int Page, int PageSize);
 
 public interface ISearchService
 {
@@ -23,7 +23,7 @@ public interface ISearchService
         int pageSize,
         CancellationToken cancellationToken = default);
 
-    Task IndexListingAsync(ListingDocument listing, CancellationToken cancellationToken = default);
+    Task IndexCatalogAsync(CatalogDocument catalog, CancellationToken cancellationToken = default);
 }
 
 public class ElasticsearchService(ElasticsearchClient client) : ISearchService
@@ -41,7 +41,7 @@ public class ElasticsearchService(ElasticsearchClient client) : ISearchService
     {
         var from = (page - 1) * pageSize;
 
-        var response = await client.SearchAsync<ListingDocument>(s => s
+        var response = await client.SearchAsync<CatalogDocument>(s => s
             .Indices(IndexName)
             .From(from)
             .Size(pageSize)
@@ -62,6 +62,6 @@ public class ElasticsearchService(ElasticsearchClient client) : ISearchService
             pageSize);
     }
 
-    public async Task IndexListingAsync(ListingDocument listing, CancellationToken cancellationToken = default)
-        => await client.IndexAsync(listing, i => i.Index(IndexName).Id(listing.Id.ToString()), cancellationToken);
+    public async Task IndexCatalogAsync(CatalogDocument catalog, CancellationToken cancellationToken = default)
+        => await client.IndexAsync(catalog, i => i.Index(IndexName).Id(catalog.Id.ToString()), cancellationToken);
 }

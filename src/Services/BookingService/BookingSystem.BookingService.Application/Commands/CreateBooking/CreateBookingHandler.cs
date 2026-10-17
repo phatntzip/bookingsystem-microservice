@@ -21,7 +21,7 @@ public class CreateBookingHandler(
             ?? throw new NotFoundException($"Catalog {cmd.CatalogId} not found.");
 
         if (!catalog.IsAvailable)
-            throw new ListingNotAvailableException(cmd.CatalogId, period);
+            throw new CatalogNotAvailableException(cmd.CatalogId, period);
 
         if (await bookingRepo.HasOverlapAsync(new CatalogId(cmd.CatalogId), period, cancellationToken))
             throw new BookingOverlapException();

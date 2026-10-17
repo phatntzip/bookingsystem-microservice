@@ -1,4 +1,4 @@
-using BookingSystem.CatalogService.Api.Features.CreateListing;
+using BookingSystem.CatalogService.Api.Features.CreateCatalog;
 using BookingSystem.CatalogService.Infrastructure.Persistence;
 using BookingSystem.CatalogService.Infrastructure.Repositories;
 using FluentAssertions;
@@ -8,7 +8,7 @@ namespace CatalogService.Tests.Features;
 
 public class CreateCatalogHandlerTests
 {
-    private readonly IListingRepository _repo = Substitute.For<IListingRepository>();
+    private readonly ICatalogRepository _repo = Substitute.For<ICatalogRepository>();
 
     [Fact]
     public async Task Handle_ValidCommand_PersistsCatalogWithCommandValues()
@@ -29,7 +29,7 @@ public class CreateCatalogHandlerTests
     }
 
     [Fact]
-    public async Task Handle_NewListing_IsAvailableByDefault()
+    public async Task Handle_NewCatalog_IsAvailableByDefault()
     {
         Catalog? added = null;
         await _repo.AddAsync(Arg.Do<Catalog>(c => added = c), Arg.Any<CancellationToken>());
